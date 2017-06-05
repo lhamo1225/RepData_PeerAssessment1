@@ -1,65 +1,92 @@
-
 # Reproducible Research: Peer Assessment 1
 
 
-
 ## Loading and preprocessing the data
-```{r, results='markup', warning=TRUE, message=TRUE, echo=TRUE}
+
+```r
 if(!file.exists('activity.csv')){
     unzip('activity.zip')
 }
 Data <- read.csv('activity.csv')
-
 ```
 
 
 ## What is mean total number of steps taken per day?
-```{r, results = "markup", echo=TRUE,message=TRUE }
 
+```r
 Data$date <- as.Date(Data$date)
 Daily <- rowsum(Data$steps,Data$date, na.rm = TRUE)
 Daily <- data.frame(Daily)
 names(Daily) <- "Steps"
 hist(Daily$Steps, breaks = 20)
 ```
+
+![](PA1_template_files/figure-html/unnamed-chunk-2-1.png)
 ### Mean and Median 
-```{r, results = "markup", echo=TRUE,message=TRUE }
+
+```r
 mean(Daily$Steps)
+```
+
+```
+## [1] 9354.23
+```
+
+```r
 median(Daily$Steps)
+```
+
+```
+## [1] 10395
 ```
 * Mean: 9354.2295
 * Median:  10395
 ## What is the average daily activity pattern?
-```{r, results = "markup", echo=TRUE,message=TRUE }
 
+```r
 Pattern <- aggregate(x=list(meanSteps=Data$steps), by=list(interval=Data$interval), FUN=mean, na.rm=TRUE)
 ```
 ### Making time series plot
-```{r, results = "markup", echo=TRUE,message=TRUE }
+
+```r
 library(ggplot2)
 ggplot(data = Pattern,aes(x = interval, y = meanSteps)) +
   geom_line()
 ```
-### interval that contains max number of average steps
-```{r, results = "markup", echo=TRUE,message=TRUE }
-Pattern[which.max(Pattern$meanSteps),]
 
+![](PA1_template_files/figure-html/unnamed-chunk-5-1.png)
+### interval that contains max number of average steps
+
+```r
+Pattern[which.max(Pattern$meanSteps),]
+```
+
+```
+##     interval meanSteps
+## 104      835  206.1698
 ```
 *Most step at 8:35
 ## Imputing missing values
 ### Calculate and report the total number of missing values in the dataset
-```{r, results = "markup", echo=TRUE,message=TRUE }
+
+```r
 Missing <- Data[which(is.na(Data$steps)),]
 dim(Missing)
+```
+
+```
+## [1] 2304    3
 ```
 *number of missing: 2304
 ## Are there differences in activity patterns between weekdays and weekends?
 ### Create a new variable with two levels
-```{r, results = "markup", echo=TRUE,message=TRUE }
+
+```r
 Data$wday <- as.factor(ifelse(weekdays(Data$date) %in% c("Saturday","Sunday"),"weekends","weekdays"))
 ```
 ### Plotting
-```{r, results = "markup", echo=TRUE,message=TRUE }
+
+```r
 pat_week <- aggregate( steps ~ interval + wday, data = Data, mean )
 ggplot(pat_week,aes(interval, steps))+
 geom_line()+
@@ -67,3 +94,5 @@ facet_grid(wday ~ .) +
 xlab("5-minute interval") + 
 ylab("avarage number of steps")
 ```
+
+![](PA1_template_files/figure-html/unnamed-chunk-9-1.png)
